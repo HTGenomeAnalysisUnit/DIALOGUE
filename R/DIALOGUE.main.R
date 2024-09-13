@@ -142,9 +142,12 @@ DIALOGUE1<-function(rA,main,param){
       X1<-r@extra.scores$XAv
       return(X1)
     }
+    message("Average matrix rows")
     X1<-average.mat.rows(r@X,r@samples,f = param$averaging.function)
     if(param$spatial.flag){return(X1)}
     b<-get.abundant(r@samples,abn.c = param$abn.c,boolean.flag = T)
+    message("Min cell per sample set to ", param$abn.c, " - ", length(b), " cells and ", length(unique(r@samples[b])), " samples remaining")
+    message("Computing ANOVA")
     p<-p.adjust(apply.anova(X = r@X[b,],y = r@samples[b],MARGIN = 2),method = "BH")
     print(paste0(r@name,": Removing ",sum(p>p.anova)," of ",length(p)," features."))
     if(sum(p<p.anova)<5){
@@ -152,6 +155,7 @@ DIALOGUE1<-function(rA,main,param){
       #err.message2<-"Make sure the data includes at least 5 samples where all cell types are well represented."
       print(err.message1);#print(err.message2)
       stop(err.message1)}
+    message("Subset matrix")
     X1<-X1[,names(p)[p<p.anova]]
     return(X1)
   })
@@ -162,11 +166,13 @@ DIALOGUE1<-function(rA,main,param){
   # Finding shared samples
   samples<-unlist(lapply(cell.types, function(x) rownames(X[[x]])))
   samplesU<-get.abundant(samples,n1)
+  message(length(samplesU), " samples found shared across cell types")
   if(length(samplesU)<5){
     stop("Cannot run DIALOGUE with less than 5 samples.")
   }
   
   # Centering and scaling (optional)
+  message("Centering and scaling")
   f<-function(X1){
     if(param$center.flag){
       X1<-center.matrix(X1,dim = 2,sd.flag = T)
@@ -179,7 +185,9 @@ DIALOGUE1<-function(rA,main,param){
   k1<-ncol(X[[1]])
   
   if(is.null(param$specific.pair)){
+    message("Running DIALOGUE1.PMD")
     out<-DIALOGUE1.PMD(X = X,k = param$k,PMD2 = param$PMD2,extra.sparse = param$extra.sparse,seed1 = param$seed1)
+    message("Running DIALOGUE1.PMD.empirical")
     emp.p<-DIALOGUE1.PMD.empirical(X,param$k,n1 = 100,extra.sparse = param$extra.sparse)
     if(param$bypass.emp){
       emp.p1<-emp.p
@@ -188,6 +196,7 @@ DIALOGUE1<-function(rA,main,param){
       print(emp.p)
     }
   }else{
+    message("Running DIALOGUE1.PMD.pairwise")
     out<-DIALOGUE1.PMD.pairwise(X,param$k,param$specific.pair)
     if(out$message=="No programs"){return(out)}
     rA<-rA[param$specific.pair]
@@ -241,6 +250,7 @@ DIALOGUE1<-function(rA,main,param){
     R$samples.cells[[x]]<-r@samples
   }
   if(param$bypass.emp){R$emp.p1<-emp.p1}
+  message("Save DIALOGUE1 results to RDS")
   saveRDS(R,file = paste0(param$results.dir,"/",R$name,".rds"))
   dir.create(paste0(param$results.dir,"/DIALOGUE2_",main))
   return(R)
