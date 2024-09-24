@@ -12,6 +12,7 @@ average.mat.rows<-function(m,ids,f = colMeans){
   b<-is.element(ids,ids.u1)
   m0<-m[b,]
   message("m0 dimensions: ", dim(m0))
+  if(sum(b)==0){return(m1)}
   if(sum(b)==1){m0<-t(as.matrix(m0))}
   rownames(m0)<-ids[b]
 
