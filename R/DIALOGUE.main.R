@@ -137,6 +137,7 @@ DIALOGUE1<-function(rA,main,param){
   dir.create(param$results.dir)
   p.anova<-param$p.anova
   X<-lapply(rA, function(r){
+    message("=== PROCESSING CELL TYPE: ", r@name, " ===")
     if(!is.null(r@extra.scores$XAv)){
       print("Using previous sample-level computations")
       X1<-r@extra.scores$XAv
