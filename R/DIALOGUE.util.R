@@ -1,13 +1,13 @@
 average.mat.rows<-function(m,ids,f = colMeans){
   ids.u<-sort(get.abundant(ids))
-  message("N samples with enough cells (ids.u size): ", length(ids.u))
+  message("N samples with more than one cell (ids.u size): ", length(ids.u))
   m1<-laply(ids.u,function(x){return(f(m[is.element(ids,x),]))})
   message("resulting matrix (m1) dimensions: ", paste(dim(m1), collapse=","))
   rownames(m1)<-ids.u
   colnames(m1)<-colnames(m)
   
   ids.u1<-setdiff(unique(ids),ids.u)
-  message("N samples without enough cells (ids.u1 size): ", length(ids.u1))
+  message("N samples with a single cell (ids.u1 size): ", length(ids.u1))
   if(length(ids.u1)==0){return(m1)}
   b<-is.element(ids,ids.u1)
   m0<-m[b,]
