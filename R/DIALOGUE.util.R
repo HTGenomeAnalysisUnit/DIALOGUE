@@ -16,7 +16,7 @@ average.mat.rows<-function(m,ids,f = colMeans){
     message("WARN - m0 has zero columns")
     return(m1)
   }
-  if(sum(b)==1){m0<-t(as.matrix(m0))}
+  if(sum(b)==1 & dim(m0)[2] != dim(m1)[2]){m0<-t(as.matrix(m0))}
   rownames(m0)<-ids[b]
 
   message("Making m2")
