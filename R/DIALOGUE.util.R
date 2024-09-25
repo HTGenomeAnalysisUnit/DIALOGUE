@@ -1,18 +1,21 @@
 average.mat.rows<-function(m,ids,f = colMeans){
   ids.u<-sort(get.abundant(ids))
-  message("ids.u size: ", length(ids.u))
+  message("N samples with enough cells (ids.u size): ", length(ids.u))
   m1<-laply(ids.u,function(x){return(f(m[is.element(ids,x),]))})
-  message("m1 dimensions: ", dim(m1))
+  message("resulting matrix (m1) dimensions: ", paste(dim(m1), collapse=","))
   rownames(m1)<-ids.u
   colnames(m1)<-colnames(m)
   
   ids.u1<-setdiff(unique(ids),ids.u)
-  message("ids.u1 size: ", length(ids.u1))
+  message("N samples without enough cells (ids.u1 size): ", length(ids.u1))
   if(length(ids.u1)==0){return(m1)}
   b<-is.element(ids,ids.u1)
   m0<-m[b,]
-  message("m0 dimensions: ", dim(m0))
-  if(sum(b)==0){return(m1)}
+  message("resulting matrix (m0) dimensions: ", paste(dim(m0), collapse=","))
+  if(dim(m0)[2]) == 0) {
+    message("WARN - m0 has zero columns")
+    return(m1)
+  }
   if(sum(b)==1){m0<-t(as.matrix(m0))}
   rownames(m0)<-ids[b]
 
