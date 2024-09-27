@@ -148,6 +148,10 @@ DIALOGUE1<-function(rA,main,param){
     if(param$spatial.flag){return(X1)}
     b<-get.abundant(r@samples,abn.c = param$abn.c,boolean.flag = T)
     message("Min cell per sample set to ", param$abn.c, " - ", length(b), " cells and ", length(unique(r@samples[b])), " samples remaining")
+    if (length(unique(r@samples[b])) == 0) {
+      message("WARNING - Zero samples with enough cells for ", r@name ," cell type. This will be skipped")  
+      return(NA)
+    }
     message("Computing ANOVA")
     p<-p.adjust(apply.anova(X = r@X[b,],y = r@samples[b],MARGIN = 2),method = "BH")
     print(paste0(r@name,": Removing ",sum(p>p.anova)," of ",length(p)," features."))
@@ -160,7 +164,12 @@ DIALOGUE1<-function(rA,main,param){
     X1<-X1[,names(p)[p<p.anova]]
     return(X1)
   })
-  cell.types<-names(rA)
+  
+  # Remove cell types that had zero samples and failed previous step
+  cell.types<-names(rA)[-which(is.na(X))] 
+  X <- X[-which(is.na(X))]
+
+  # Set cell types names for the new list and count cell types
   names(X)<-cell.types
   n1<-length(cell.types)
   
