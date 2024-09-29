@@ -144,7 +144,7 @@ DIALOGUE1<-function(rA,main,param){
       return(X1)
     }
     message("Average matrix rows")
-    X1<-average.mat.rows(r@X,r@samples,f = param$averaging.function)
+    X1<-average.mat.rows.run(r@X,r@samples,f = param$averaging.function)
     if(param$spatial.flag){return(X1)}
     b<-get.abundant(r@samples,abn.c = param$abn.c,boolean.flag = T)
     message("Min cell per sample set to ", param$abn.c, " - ", length(b), " cells and ", length(unique(r@samples[b])), " samples remaining")
