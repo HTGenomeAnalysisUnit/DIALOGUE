@@ -196,7 +196,9 @@ DIALOGUE1<-function(rA,main,param){
   } else { 
     stop("Cannot run DIALOGUE with less than 5 samples and no combination is possible")
   }
-  
+
+  message("Cell types considered in the analysis: ", paste(names(X), collapse=";"))
+                           
   # Centering and scaling (optional)
   message("Centering and scaling")
   f<-function(X1){
