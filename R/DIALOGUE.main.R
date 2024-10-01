@@ -193,7 +193,9 @@ DIALOGUE1<-function(rA,main,param){
     samples<-unlist(lapply(names(X), function(x) rownames(X[[x]])))
     samplesU<-get.abundant(samples,n1)
     message(length(samplesU), " samples found shared across all cell types")
-  } else { 
+  } 
+
+  if (length(samplesU)<5) {
     stop("Cannot run DIALOGUE with less than 5 samples and no combination is possible")
   }
 
