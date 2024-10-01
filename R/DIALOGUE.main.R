@@ -172,13 +172,29 @@ DIALOGUE1<-function(rA,main,param){
   # Set cell types names for the new list and count cell types
   names(X)<-cell.types
   n1<-length(cell.types)
+  message("Number of cell types in the final dataset: ", n1)
   
   # Finding shared samples
   samples<-unlist(lapply(cell.types, function(x) rownames(X[[x]])))
   samplesU<-get.abundant(samples,n1)
-  message(length(samplesU), " samples found shared across cell types")
-  if(length(samplesU)<5){
-    stop("Cannot run DIALOGUE with less than 5 samples.")
+  message(length(samplesU), " samples found shared across all cell types")
+  while(length(samplesU)<5 & length(names(X)) > 2){
+    message("Cannot run DIALOGUE with less than 5 samples. Try to remove the smallest cell type")
+    smallest_cell_idx <- which.min(
+      unlist(
+        lapply(
+          names(X), 
+          function(x) dim(X[[x]])[1]
+          )
+      )
+    )
+    message("The smallest cell type is: ", names(X)[smallest_cell_idx], " containing ", dim(X[smallest_cell_idx])[1], " samples")
+    X <- X[-smallest_cell_idx]
+    samples<-unlist(lapply(names(X), function(x) rownames(X[[x]])))
+    samplesU<-get.abundant(samples,n1)
+    message(length(samplesU), " samples found shared across all cell types")
+  } else { 
+    stop("Cannot run DIALOGUE with less than 5 samples and no combination is possible")
   }
   
   # Centering and scaling (optional)
