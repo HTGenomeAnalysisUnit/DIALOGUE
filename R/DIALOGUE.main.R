@@ -184,18 +184,15 @@ DIALOGUE1<-function(rA,main,param){
   message(length(samplesU), " samples found shared across all cell types")
   while(length(samplesU)<5 & length(names(X)) > 2){
     message("Cannot run DIALOGUE with less than 5 samples. Try to remove the smallest cell type")
-    smallest_cell_idx <- which.min(
-      unlist(
-        lapply(
-          names(X), 
-          function(x) dim(X[[x]])[1]
-          )
-      )
-    )
-    smallest_cell_type <- names(X)[smallest_cell_idx]
-    message("The smallest cell type is: ", names(X)[smallest_cell_idx], " containing ", dim(X[[smallest_cell_type]])[1], " samples")
-    X <- X[-smallest_cell_idx]
+    
+    samples_per_celltype <- lapply(names(X), function(x) rownames(X[[x]]))
+    names(samples_per_celltype) <- names(X)
+    smallest_cell_type <- find_smallest_overlap(samples_per_celltype)
+    message("The smallest cell type is: ", smallest_cell_type, " containing ", dim(X[[smallest_cell_type]])[1], " samples")
+    
+    X[[smallest_cell_type]] <- NULL
     n1 <- n1 - 1
+    
     samples<-unlist(lapply(names(X), function(x) rownames(X[[x]])))
     samplesU<-get.abundant(samples,n1)
     message(length(samplesU), " samples found shared across all cell types")
