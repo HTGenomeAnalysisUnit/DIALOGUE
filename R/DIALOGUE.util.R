@@ -1,3 +1,29 @@
+find_smallest_overlap <- function(named_list) {
+  calculate_overlap <- function(vec1, vec2) {
+    length(intersect(vec1, vec2))
+  }
+  
+  min_overlap <- Inf
+  min_element <- NULL
+  
+  for (name1 in names(named_list)) {
+    total_overlap <- 0
+    
+    for (name2 in names(named_list)) {
+      if (name1 != name2) {
+        total_overlap <- total_overlap + calculate_overlap(named_list[[name1]], named_list[[name2]])
+      }
+    }
+    
+    if (total_overlap < min_overlap) {
+      min_overlap <- total_overlap
+      min_element <- name1
+    }
+  }
+  
+  return(min_element)
+}
+
 average.mat.rows.run<-function(m,ids,f = colMeans){
   ids.u<-sort(get.abundant(ids))
   message("N samples with more than one cell (ids.u size): ", length(ids.u))
