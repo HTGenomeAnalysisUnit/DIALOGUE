@@ -166,8 +166,12 @@ DIALOGUE1<-function(rA,main,param){
   })
   
   # Remove cell types that had zero samples and failed previous step
-  cell.types<-names(rA)[-which(is.na(X))] 
-  X <- X[-which(is.na(X))]
+  cell.types<-names(rA)
+  na_celltypes <- which(is.na(X))
+  if (length(na_celltypes) > 0) {
+    cell.types<-names(rA)[-which(is.na(X))] 
+    X <- X[-which(is.na(X))]
+  }
 
   # Set cell types names for the new list and count cell types
   names(X)<-cell.types
@@ -188,8 +192,10 @@ DIALOGUE1<-function(rA,main,param){
           )
       )
     )
-    message("The smallest cell type is: ", names(X)[smallest_cell_idx], " containing ", dim(X[smallest_cell_idx])[1], " samples")
+    smallest_cell_type <- names(X)[smallest_cell_idx]
+    message("The smallest cell type is: ", names(X)[smallest_cell_idx], " containing ", dim(X[[smallest_cell_type]])[1], " samples")
     X <- X[-smallest_cell_idx]
+    n1 <- n1 - 1
     samples<-unlist(lapply(names(X), function(x) rownames(X[[x]])))
     samplesU<-get.abundant(samples,n1)
     message(length(samplesU), " samples found shared across all cell types")
