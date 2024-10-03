@@ -203,6 +203,7 @@ DIALOGUE1<-function(rA,main,param){
   }
 
   message("Cell types considered in the analysis: ", paste(names(X), collapse=";"))
+  cell.types <- names(X)
                            
   # Centering and scaling (optional)
   message("Centering and scaling")
