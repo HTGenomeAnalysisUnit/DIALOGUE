@@ -164,8 +164,11 @@ DIALOGUE1<-function(rA,main,param){
     X1<-X1[,names(p)[p<p.anova]]
     return(X1)
   })
-  
-  # Remove cell types that had zero samples and failed previous step
+
+  message("\n==================================")
+  message("=== DETERMINING SHARED SAMPLES ===") 
+  message("==================================")
+  # Remove cell types that had zero samples and failed the previous step
   cell.types<-names(rA)
   na_celltypes <- which(is.na(X))
   if (length(na_celltypes) > 0) {
@@ -173,22 +176,29 @@ DIALOGUE1<-function(rA,main,param){
     X <- X[-which(is.na(X))]
   }
 
-  # Set cell types names for the new list and count cell types
+  # Set cell type names for the new list and count cell types
   names(X)<-cell.types
   n1<-length(cell.types)
   message("Number of cell types in the final dataset: ", n1)
-  
+  samples_per_celltype <- lapply(X, rownames)
+  message("=== SAMPLES SEEN IN EACH CELLTYPE ===")
+  for (ct in names(samples_per_celltype)) {
+    message(">>> " ct " - ", length(samples_per_celltype[[ct]]), " <<<")
+    message(paste(sort(samples_per_celltype[[ct]]), collapse=",")
+  }
+  message("=====================================")
+            
   # Finding shared samples
   samples<-unlist(lapply(cell.types, function(x) rownames(X[[x]])))
   samplesU<-get.abundant(samples,n1)
   message(length(samplesU), " samples found shared across all cell types")
   while(length(samplesU)<5 & length(names(X)) > 2){
-    message("Cannot run DIALOGUE with less than 5 samples. Try to remove the smallest cell type")
+    message("Cannot run DIALOGUE with less than 5 samples. Try to remove the cell type with smallest overlap")
     
     samples_per_celltype <- lapply(names(X), function(x) rownames(X[[x]]))
     names(samples_per_celltype) <- names(X)
     smallest_cell_type <- find_smallest_overlap(samples_per_celltype)
-    message("The smallest cell type is: ", smallest_cell_type, " containing ", dim(X[[smallest_cell_type]])[1], " samples")
+    message("Selected cell type is: ", smallest_cell_type, " containing ", dim(X[[smallest_cell_type]])[1], " samples")
     
     X[[smallest_cell_type]] <- NULL
     n1 <- n1 - 1
@@ -204,6 +214,7 @@ DIALOGUE1<-function(rA,main,param){
 
   message("Cell types considered in the analysis: ", paste(names(X), collapse=";"))
   cell.types <- names(X)
+  message("=====================================")                        
                            
   # Centering and scaling (optional)
   message("Centering and scaling")
