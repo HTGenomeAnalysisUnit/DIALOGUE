@@ -183,7 +183,7 @@ DIALOGUE1<-function(rA,main,param){
   samples_per_celltype <- lapply(X, rownames)
   message("=== SAMPLES SEEN IN EACH CELLTYPE ===")
   for (ct in names(samples_per_celltype)) {
-    message(">>> " ct " - ", length(samples_per_celltype[[ct]]), " <<<")
+    message(">>> ", CT, " - ", length(samples_per_celltype[[ct]]), " <<<")
     message(paste(sort(samples_per_celltype[[ct]]), collapse=",")
   }
   message("=====================================")
