@@ -184,7 +184,7 @@ DIALOGUE1<-function(rA,main,param){
   message("=== SAMPLES SEEN IN EACH CELLTYPE ===")
   for (ct in names(samples_per_celltype)) {
     message(">>> ", CT, " - ", length(samples_per_celltype[[ct]]), " <<<")
-    message(paste(sort(samples_per_celltype[[ct]]), collapse=",")
+    message(paste(sort(samples_per_celltype[[ct]]), collapse=","))
   }
   message("=====================================")
             
