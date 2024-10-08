@@ -253,7 +253,7 @@ DIALOGUE1<-function(rA,main,param){
     cell.types<-names(rA)
     n1<-length(cell.types)
   }
-  
+                           
   Y<-lapply(names(X), function(i) X[[i]]%*%out$ws[[i]])
   names(Y)<-names(X)
   pairs1<-t(combn(names(X),2))
@@ -277,7 +277,10 @@ DIALOGUE1<-function(rA,main,param){
   names(R$k)<-c("DIALOGUE",paste0("original.",cell.types))
   R$message<-paste("DIALOGUE1 found",nrow(emp.p),"programs.")
   
+  message("=== Completed PMD ===")
+                   
   for(x in cell.types){
+    message("Computing correlations for ", x)
     r<-rA[[x]]
     y[[x]]<-r@X[,rownames(out$ws[[x]])]%*%out$ws[[x]]
     scores0<-as.matrix(y[[x]])
