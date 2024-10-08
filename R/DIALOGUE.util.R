@@ -36,10 +36,10 @@ average.mat.rows.run<-function(m,ids,f = colMeans){
   message("N samples with a single cell (ids.u1 size): ", length(ids.u1))
   if(length(ids.u1)==0){return(m1)}
   b<-is.element(ids,ids.u1)
-  m0<-m[b,]
+  m0<-as.matrix(m[b,])
   message("resulting matrix (m0) dimensions: ", paste(dim(m0), collapse=","))
 
-  if(sum(b)==1 & dim(m0)[2] != dim(m1)[2]){m0<-t(as.matrix(m0))}
+  if(sum(b)==1 & dim(m0)[2] != dim(m1)[2]){m0<-t(m0)}
   rownames(m0)<-ids[b]
 
   message("Making m2")
