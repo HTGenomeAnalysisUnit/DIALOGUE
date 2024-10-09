@@ -147,7 +147,7 @@ DIALOGUE1<-function(rA,main,param){
     X1<-average.mat.rows.run(r@X,r@samples,f = param$averaging.function)
     if(param$spatial.flag){return(X1)}
     b<-get.abundant(r@samples,abn.c = param$abn.c,boolean.flag = T)
-    message("Min cell per sample set to ", param$abn.c, " - ", length(b), " cells and ", length(unique(r@samples[b])), " samples remaining")
+    message("Min cell per sample set to ", param$abn.c, " - ", length(b), " cells and ", length(unique(r@samples[b])), " samples used in ANOVA")
     if (length(unique(r@samples[b])) == 0) {
       message("WARNING - Zero samples with enough cells for ", r@name ," cell type. This will be skipped")  
       return(NA)
@@ -278,6 +278,9 @@ DIALOGUE1<-function(rA,main,param){
   R$message<-paste("DIALOGUE1 found",nrow(emp.p),"programs.")
   
   message("=== Completed PMD ===")
+  message("Save temp results")
+  saveRDS(R, file = paste0(param$results.dir,"/Robj_temp.rds"))
+  saveRDS(out, file = paste0(param$results.dir,"/outobj_temp.rds"))
                    
   for(x in cell.types){
     message("Computing correlations for ", x)
