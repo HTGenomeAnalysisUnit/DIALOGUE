@@ -285,7 +285,12 @@ DIALOGUE1<-function(rA,main,param){
   for(x in cell.types){
     message("Computing correlations for ", x)
     r<-rA[[x]]
-    y[[x]]<-r@X[,rownames(out$ws[[x]])]%*%out$ws[[x]]
+    if ("data.table" %in% class(r@X)) {
+      col_names <- rownames(out$ws[[x]])
+      y[[x]]<- as.matrix(r@X[, ..col_names])%*%out$ws[[x]]
+    } else {
+      y[[x]]<- as.matrix(r@X[, rownames(out$ws[[x]])])%*%out$ws[[x]]
+    }
     scores0<-as.matrix(y[[x]])
     conf.m<-r@metadata[,is.element(colnames(r@metadata),param$conf)]
     r@scores<-t(get.residuals(t(scores0),conf.m))
