@@ -22,11 +22,17 @@
 #' @export
 #' 
 
-DIALOGUE.run<-function(rA,main,param,plot.flag = T){
+DIALOGUE.run<-function(cell_types_folder,main,param,plot.flag = T){
+  # celltype folder is supposed to contain RDS files of celltype objects
+  # The names of the RDS files should be the cell type names
+  # rA is now a named list of celltype = celltype object RDS files
+  rA<-lapply(list.files(cell_types_folder,pattern="\\.(RDS|rds)", full.names = T),normalizePath)
+  names(rA)<-gsub("\\.(RDS|rds)","",basename(unlist(rA)))
+
   # Ensuring the output directory exists
   assertthat::assert_that(file.exists(param$results.dir))
-  
-  names(rA)<-laply(rA,function(r) r@name)
+
+  #names(rA)<-laply(rA,function(r) r@name)
   R<-DIALOGUE1(rA = rA,main = main,param = param)
   if(R$message=="No programs"){return(R)}
   if(!param$find.genes){return(R)}
@@ -136,8 +142,10 @@ DIALOGUE1<-function(rA,main,param){
   print("#************DIALOGUE Step I: PMD ************#")
   dir.create(param$results.dir)
   p.anova<-param$p.anova
-  X<-lapply(rA, function(r){
+  X<-lapply(rA, function(f){
     message("=== PROCESSING CELL TYPE: ", r@name, " ===")
+    message("Loading data from: ", f)
+    r <- readRDS(f)
     if(!is.null(r@extra.scores$XAv)){
       print("Using previous sample-level computations")
       X1<-r@extra.scores$XAv
