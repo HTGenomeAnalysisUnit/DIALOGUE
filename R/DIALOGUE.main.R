@@ -42,8 +42,17 @@ DIALOGUE.run<-function(cell_types_folder,main,param,plot.flag = T){
     rA<-rA[param$specific.pair]
   }
   
+  message("Cleaning memory")
+  gc()
+
   R<-DIALOGUE2(rA = rA,main = main,results.dir = param$results.dir)
+  message("Cleaning memory")
+  gc()
+
   R<-DIALOGUE3(rA = rA,main = main,results.dir = param$results.dir)
+  message("Cleaning memory")
+  gc()
+  
   if(plot.flag){
     DIALOGUE.plot(R,results.dir = param$results.dir,pheno = param$pheno)
   }
@@ -173,6 +182,9 @@ DIALOGUE1<-function(rA,main,param){
     return(X1)
   })
 
+  message("Cleaning memory")
+  gc()
+
   message("\n==================================")
   message("=== DETERMINING SHARED SAMPLES ===") 
   message("==================================")
@@ -285,10 +297,10 @@ DIALOGUE1<-function(rA,main,param){
   names(R$k)<-c("DIALOGUE",paste0("original.",cell.types))
   R$message<-paste("DIALOGUE1 found",nrow(emp.p),"programs.")
   
-  message("=== Completed PMD ===")
-  message("Save temp results")
-  saveRDS(R, file = paste0(param$results.dir,"/Robj_temp.rds"))
-  saveRDS(out, file = paste0(param$results.dir,"/outobj_temp.rds"))
+  # message("=== Completed PMD ===")
+  # message("Save temp results")
+  # saveRDS(R, file = paste0(param$results.dir,"/Robj_temp.rds"))
+  # saveRDS(out, file = paste0(param$results.dir,"/outobj_temp.rds"))
                    
   for(x in cell.types){
     message("Computing correlations for ", x)
@@ -476,6 +488,7 @@ DIALOGUE2<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
   
   R$name<-paste0("DIALOGUE2_",main)
   saveRDS(R,file = file2)
+  message("DIALOGUE2 results saved to ",file2)
   return(R)
 }
 
@@ -566,11 +579,17 @@ DIALOGUE3<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
   R$gene.pval<-lapply(R$cell.types, function(x){DLG.multi.get.gene.pval(x,R)})
   names(R$gene.pval)<-R$cell.types
   
-  rA<-lapply(rA,function(r){
-    r<-DLG.find.scoring(r,R)
-    return(r)
+  dlg_find_out<-lapply(rA,function(f){
+    message("Applying DLG.find.scoring for ", f)
+    message("Loading data")
+    r <- readRDS(f)
+    res <- DLG.find.scoring(r,R)
+    return(res)
   })
-  names(rA)<-cell.types
+  names(dlg_find_out)<-cell.types
+  message("Clean memory")
+  gc()
+
   R$pref<-list()
   idx<-unique(get.strsplit(names(R$sig[[1]]),".",1))
   pairs1<-t(combn(cell.types,2))
@@ -578,18 +597,26 @@ DIALOGUE3<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
   for(i in 1:nrow(pairs1)){
     x1<-pairs1[i,1];x2<-pairs1[i,2]
     x<-paste0(x1,".vs.",x2)
-    r1<-rA[[x1]];r2<-rA[[x2]]
-    r<-DLG.get.OE(r1,r2,plot.flag = F,compute.scores = F)
+    message("=== ", x, " ===")
+    
+    x1_file <- rA[[x1]]
+    message("Loading ", x1, "data from ", x1_file)
+    x1_data <- readRDS(x1_file)
+    x2_file <- rA[[x2]]
+    message("Loading ", x2, "data from ", x2_file)
+    x2_data <- readRDS(x2_file)  
+    
+    r<-DLG.get.OE(x1_data,x2_data,plot.flag = F,compute.scores = F)
     r1<-r$r1;r2<-r$r2
     idx<-intersect(get.abundant(r1@samples),get.abundant(r2@samples))
     R$pref[[x]]<-cbind.data.frame(R = diag(cor(r1@scoresAv[idx,],r2@scoresAv[idx,])),
                                   hlm = DLG.hlm.pval(r1,r2,formula = R$frm))
   }
   
-  R$gene.pval<-lapply(rA,function(r1) r1@gene.pval)
-  R$sig1<-lapply(rA,function(r1) r1@sig$sig1)
-  R$sig2<-lapply(rA,function(r1) r1@sig$sig2)
-  R$scores<-lapply(rA,function(r1){
+  R$gene.pval<-lapply(dlg_find_out,function(r1) r1@gene.pval)
+  R$sig1<-lapply(dlg_find_out,function(r1) r1@sig$sig1)
+  R$sig2<-lapply(dlg_find_out,function(r1) r1@sig$sig2)
+  R$scores<-lapply(dlg_find_out,function(r1){
     X<-cbind.data.frame(r1@scores,samples = r1@samples,
                         cells = r1@cells, cell.type = r1@name,
                         r1@metadata)
@@ -614,6 +641,7 @@ DIALOGUE3<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
   R1<-R[intersect(names(R),c("cell.types","scores","gene.pval","param","MCP.cell.types","MCPs","MCPs.full",
                              "emp.p","pref","k","name","phenoZ",results.dir))]
   fileName<-paste0(results.dir,"DLG.output_",main,".rds")
+  message("Saving final output to ", fileName)
   saveRDS(R1,file = fileName)
   
   if(!R$param$full.version){
@@ -698,6 +726,7 @@ DLG.multi.get.gene.pval<-function(cell.type,R){
 }
 
 DLG.find.scoring<-function(r1,R){
+  r_out <- new("cell.type")
   gene.pval<-R$gene.pval[[r1@name]]
   if(is.null(gene.pval)){
     print("No MCPs identified.")
@@ -749,7 +778,15 @@ DLG.find.scoring<-function(r1,R){
   m1<-m1[m1$coef>0|(m1$n.up>=lb&m1$p.up<1e-3)|(m1$n.down>=lb&m1$p.down<1e-3),]
   m2<-m2[m2$Nf==1&(m2$p.up<0.05|m2$p.down<0.05),]
   r1@sig<-list(sig1 = split(m1$genes,m1$programF),sig2 = split(m2$genes,m2$programF))
-  return(r1)
+  
+  r_out@gene.pval <- r1@gene.pval
+  r_out@sig <- r1@sig
+  r_out@scores <- r1@scores
+  r_out@samples <- r1@samples
+  r_out@cells <- r1@cells
+  r_out@name <- r1@name
+  r_out@metadata <- r1@metadata
+  return(r_out)
 }
 
 DLG.initialize<-function(r1,R){
