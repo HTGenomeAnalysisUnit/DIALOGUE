@@ -152,9 +152,10 @@ DIALOGUE1<-function(rA,main,param){
   dir.create(param$results.dir)
   p.anova<-param$p.anova
   X<-lapply(rA, function(f){
-    message("=== PROCESSING CELL TYPE: ", r@name, " ===")
+    message("=== PROCESSING CELL TYPE ===")
     message("Loading data from: ", f)
     r <- readRDS(f)
+    message("Cell type in this file: ", r@name)
     if(!is.null(r@extra.scores$XAv)){
       print("Using previous sample-level computations")
       X1<-r@extra.scores$XAv

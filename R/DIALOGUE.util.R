@@ -28,7 +28,7 @@ average.mat.rows.run<-function(m,ids,f = colMeans){
   ids.u<-sort(get.abundant(ids))
   message("N samples with more than one cell (ids.u size): ", length(ids.u))
   m1<-laply(ids.u,function(x){return(f(m[is.element(ids,x),]))})
-  message("resulting matrix (m1) dimensions: ", paste(dim(m1), collapse=","))
+  #message("resulting matrix (m1) dimensions: ", paste(dim(m1), collapse=","))
   rownames(m1)<-ids.u
   colnames(m1)<-colnames(m)
   
@@ -37,12 +37,12 @@ average.mat.rows.run<-function(m,ids,f = colMeans){
   if(length(ids.u1)==0){return(m1)}
   b<-is.element(ids,ids.u1)
   m0<-as.matrix(m[b,])
-  message("resulting matrix (m0) dimensions: ", paste(dim(m0), collapse=","))
+  #message("resulting matrix (m0) dimensions: ", paste(dim(m0), collapse=","))
 
   if(sum(b)==1 & dim(m0)[2] != dim(m1)[2]){m0<-t(m0)}
   rownames(m0)<-ids[b]
 
-  message("Making m2")
+  #message("Making m2")
   m2<-rbind(m1,m0)
   m2<-m2[sort(rownames(m2)),]
   return(m2)
