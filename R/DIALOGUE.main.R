@@ -472,7 +472,11 @@ DIALOGUE2<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
     x1<-pairs1[i,1];x2<-pairs1[i,2]
     print(paste("#************DIALOGUE Step II (multilevel modeling):",x1,"vs.",x2,"************#"))
     p<-paste0(x1,".vs.",x2)
-    rslts<-DIALOGUE2.pair(R,rA[[x1]],rA[[x2]],cell.types,results.dir)
+    message("Loading data for ", x1)
+    r1 <- readRDS(rA[[x1]])
+    message("Loading data for ", x2)
+    r2 <- readRDS(rA[[x2]])
+    rslts<-DIALOGUE2.pair(R,r1,r2,cell.types,results.dir)
     return(rslts)
   }
   
@@ -484,7 +488,11 @@ DIALOGUE2<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
     for(i in 1:nrow(pairs1)){
       x1<-pairs1[i,1];x2<-pairs1[i,2]
       print(paste("#************DIALOGUE Step II (multilevel modeling):",x1,"vs.",x2,"************#"))
-      R[[paste0(x1,".vs.",x2)]]<-DIALOGUE2.pair(R,rA[[x1]],rA[[x2]],cell.types,results.dir)
+      message("Loading data for ", x1)
+      r1 <- readRDS(rA[[x1]])
+      message("Loading data for ", x2)
+      r2 <- readRDS(rA[[x2]])
+      R[[paste0(x1,".vs.",x2)]]<-DIALOGUE2.pair(R,r1,r2,cell.types,results.dir)
     }
   }
   
