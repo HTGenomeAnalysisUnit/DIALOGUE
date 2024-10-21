@@ -316,6 +316,8 @@ DIALOGUE1<-function(rA,main,param){
     scores0<-as.matrix(y[[x]])
     conf.m<-r@metadata[,is.element(colnames(r@metadata),param$conf)]
     r@scores<-t(get.residuals(t(scores0),conf.m))
+    message("Save scores to ", paste0(param$results.dir,"/",R$name, ".", x, "_scores.rds"))
+    saveRDS(r@scores, file = paste0(param$results.dir,"/",R$name, ".", x, "_scores.rds"))
     R$cca.scores[[x]]<-r@scores
     R$cca.gene.cor1[[x]]<-cor(t(r@tpm),r@scores)
     g1<-sort(unique(unlist(get.top.cor(R$cca.gene.cor1[[x]],q = param$n.genes,min.ci = 0.05))))
@@ -594,6 +596,7 @@ DIALOGUE3<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
     message("Loading data")
     r <- readRDS(f)
     res <- DLG.find.scoring(r,R)
+    rm(r); gc()
     return(res)
   })
   names(dlg_find_out)<-cell.types
@@ -610,17 +613,25 @@ DIALOGUE3<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
     message("=== ", x, " ===")
     
     x1_file <- rA[[x1]]
-    message("Loading ", x1, "data from ", x1_file)
+    x1_score_file <- paste0(results.dir,"/DIALOGUE1_",main, ".", x1, "_scores.rds")
+    message("Loading ", x1, " data from ", x1_file)
     x1_data <- readRDS(x1_file)
+    message("Loading DIALOGUE1 scores for ", x1_score_file)
+    x1_data@scores <- readRDS(x1_score_file)
+
     x2_file <- rA[[x2]]
-    message("Loading ", x2, "data from ", x2_file)
-    x2_data <- readRDS(x2_file)  
+    x2_score_file <- paste0(results.dir,"/DIALOGUE1_",main,,".", x2, "_scores.rds")
+    message("Loading ", x2, " data from ", x2_file)
+    x2_data <- readRDS(x2_file)
+    message("Loading DIALOGUE1 scores for ", x1_score_file)
+    x2_data@scores <- readRDS(x2_score_file)
     
     r<-DLG.get.OE(x1_data,x2_data,plot.flag = F,compute.scores = F)
     r1<-r$r1;r2<-r$r2
     idx<-intersect(get.abundant(r1@samples),get.abundant(r2@samples))
     R$pref[[x]]<-cbind.data.frame(R = diag(cor(r1@scoresAv[idx,],r2@scoresAv[idx,])),
                                   hlm = DLG.hlm.pval(r1,r2,formula = R$frm))
+    rm(x1_data); rm(x2_data); gc()
   }
   
   R$gene.pval<-lapply(dlg_find_out,function(r1) r1@gene.pval)
@@ -841,7 +852,7 @@ DLG.iterative.nnls<-function(X,y,gene.pval){
   y<-v[[main]]$residuals
   y.fit<-y.fit+v[[main]]$fitted
   gene.pval$coef[f.rank<n1]<-v[[main]]$x
-  cor.plot(y.fit,y1,main = paste("NNLS fitting -",n1))
+  # cor.plot(y.fit,y1,main = paste("NNLS fitting -",n1))
   return(gene.pval)
 }
 
