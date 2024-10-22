@@ -316,8 +316,6 @@ DIALOGUE1<-function(rA,main,param){
     scores0<-as.matrix(y[[x]])
     conf.m<-r@metadata[,is.element(colnames(r@metadata),param$conf)]
     r@scores<-t(get.residuals(t(scores0),conf.m))
-    message("Save scores to ", paste0(param$results.dir,"/",R$name, ".", x, "_scores.rds"))
-    saveRDS(r@scores, file = paste0(param$results.dir,"/",R$name, ".", x, "_scores.rds"))
     R$cca.scores[[x]]<-r@scores
     R$cca.gene.cor1[[x]]<-cor(t(r@tpm),r@scores)
     g1<-sort(unique(unlist(get.top.cor(R$cca.gene.cor1[[x]],q = param$n.genes,min.ci = 0.05))))
