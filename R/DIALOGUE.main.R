@@ -612,20 +612,7 @@ DIALOGUE3<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
     x<-paste0(x1,".vs.",x2)
     message("=== ", x, " ===")
     
-    x1_file <- rA[[x1]]
-    x1_score_file <- paste0(results.dir,"/DIALOGUE1_",main, ".", x1, "_scores.rds")
-    message("Loading ", x1, " data from ", x1_file)
-    x1_data <- readRDS(x1_file)
-    message("Loading DIALOGUE1 scores for ", x1_score_file)
-    x1_data@scores <- readRDS(x1_score_file)
-
-    x2_file <- rA[[x2]]
-    x2_score_file <- paste0(results.dir,"/DIALOGUE1_",main,,".", x2, "_scores.rds")
-    message("Loading ", x2, " data from ", x2_file)
-    x2_data <- readRDS(x2_file)
-    message("Loading DIALOGUE1 scores for ", x1_score_file)
-    x2_data@scores <- readRDS(x2_score_file)
-    
+    r1<-dlg_find_out[[x1]];r2<-dlg_find_out[[x2]]
     r<-DLG.get.OE(x1_data,x2_data,plot.flag = F,compute.scores = F)
     r1<-r$r1;r2<-r$r2
     idx<-intersect(get.abundant(r1@samples),get.abundant(r2@samples))
