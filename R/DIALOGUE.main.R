@@ -493,6 +493,7 @@ DIALOGUE2<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
       message("Loading data for ", x2)
       r2 <- readRDS(rA[[x2]])
       R[[paste0(x1,".vs.",x2)]]<-DIALOGUE2.pair(R,r1,r2,cell.types,results.dir)
+      rm(r1);rm(r2);gc()
     }
   }
   
