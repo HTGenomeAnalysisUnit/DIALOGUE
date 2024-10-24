@@ -612,12 +612,12 @@ DIALOGUE3<-function(rA,main,results.dir = "~/Desktop/DIALOGUE.results/"){
     message("=== ", x, " ===")
     
     r1<-dlg_find_out[[x1]];r2<-dlg_find_out[[x2]]
-    r<-DLG.get.OE(x1_data,x2_data,plot.flag = F,compute.scores = F)
+    r<-DLG.get.OE(dlg_find_out,dlg_find_out,plot.flag = F,compute.scores = F)
     r1<-r$r1;r2<-r$r2
     idx<-intersect(get.abundant(r1@samples),get.abundant(r2@samples))
     R$pref[[x]]<-cbind.data.frame(R = diag(cor(r1@scoresAv[idx,],r2@scoresAv[idx,])),
                                   hlm = DLG.hlm.pval(r1,r2,formula = R$frm))
-    rm(x1_data); rm(x2_data); gc()
+    rm(r1); rm(r2); gc()
   }
   
   R$gene.pval<-lapply(dlg_find_out,function(r1) r1@gene.pval)
