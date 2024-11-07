@@ -72,6 +72,8 @@ DIALOGUE.plot.av<-function(R,MCPs,mark.samples = NULL,d = 1,k = R$k["DIALOGUE"],
     # rownames(m1)<-idx
     colnames(m1)<-R$cell.types
     m1<-m1[,R$MCP.cell.types[[i]]]
+    idx_zero_sum <- which(colSums(m1) == 0)
+    m1 <- m1[, -idx_zero_sum]
     if(length(R$MCP.cell.types[[i]])<2){return()}
     pairs.panels(m1,hist.col = "grey",breaks = 50,bg = col1,pch = pch,ellipses = F,
                  smooth = F,lm = T,stars = T,method = "pearson",
