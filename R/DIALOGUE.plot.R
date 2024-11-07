@@ -141,8 +141,13 @@ DIALOGUE.upset<-function(R){
   p<-lapply(names(R$MCPs[!laply(R$MCPs,is.null)]), function(x){
     sig<-R$MCPs[[x]]
     names(sig)<-paste(x,names(sig),sep = ".")
-    p1<-list(upset(fromList(sig[grepl("up",names(sig))]), order.by = "freq"),
-             upset(fromList(sig[grepl("down",names(sig))]), order.by = "freq"))
+    p1 <- list()
+    if (length(sig[grepl("up",names(sig))]) > 0) {
+      p1 <- append(p1, upset(fromList(sig[grepl("up",names(sig))]), order.by = "freq"))
+    }
+    if (length(sig[grepl("down",names(sig))]) > 0) {
+      p1 <- append(p1, upset(fromList(sig[grepl("down",names(sig))]), order.by = "freq"))
+    }
     return(p1)
   })
   print(p)
